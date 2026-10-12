@@ -1,0 +1,28 @@
+
+{
+  "id": "/Escape-The-Island/",
+  "name": "Escape The Island",
+  "short_name": "Escape Island",
+  "description": "Escape The Island browser game",
+  "start_url": "/Escape-The-Island/",
+  "scope": "/Escape-The-Island/",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "/Escape-The-Island/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/Escape-The-Island/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
