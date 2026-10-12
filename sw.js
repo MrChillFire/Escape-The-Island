@@ -1,5 +1,4 @@
-
-const CACHE_NAME = "escape-island-v1";
+const CACHE_NAME = "escape-island-v2"; // bump this on every release
 
 const FILES_TO_CACHE = [
   "/Escape-The-Island/",
@@ -11,25 +10,19 @@ const FILES_TO_CACHE = [
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(FILES_TO_CACHE);
-    })
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(FILES_TO_CACHE))
   );
-
   self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then((keys) => {
-      return Promise.all(
-        keys
-          .filter((key) => key !== CACHE_NAME)
-          .map((key) => caches.delete(key))
-      );
-    })
+    caches.keys().then((keys) =>
+      Promise.all(
+        keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))
+      )
+    )
   );
-
   self.clients.claim();
 });
 
@@ -37,30 +30,24 @@ self.addEventListener("fetch", (event) => {
   const request = event.request;
   const url = new URL(request.url);
 
-  if (
-    request.method !== "GET" ||
-    url.origin !== self.location.origin
-  ) {
+  if (request.method !== "GET" || url.origin !== self.location.origin) {
     return;
   }
 
+  // Network first, fall back to cache when offline
   event.respondWith(
-    caches.match(request).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-
-      return fetch(request).then((response) => {
+    fetch(request, { cache: "no-cache" })
+      .then((response) => {
         if (response.ok) {
-          const responseCopy = response.clone();
-
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(request, responseCopy);
-          });
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
         }
-
         return response;
-      });
-    })
+      })
+      .catch(() =>
+        caches.match(request).then(
+          (cached) => cached || caches.match("/Escape-The-Island/index.html")
+        )
+      )
   );
 });
